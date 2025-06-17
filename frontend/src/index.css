@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply font-body text-gray-800 antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-elegant;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  .romantic-card {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-romantic-200/50 p-6;
+  }
+  
+  .romantic-button {
+    @apply bg-romantic-500 hover:bg-romantic-600 text-white font-medium py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+  }
+  
+  .romantic-button-outline {
+    @apply border-2 border-romantic-500 text-romantic-600 hover:bg-romantic-500 hover:text-white font-medium py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95;
+  }
+  
+  .romantic-input {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-romantic-200 focus:border-romantic-500 focus:outline-none transition-colors duration-300 bg-white/80 backdrop-blur-sm;
+  }
+  
+  .romantic-textarea {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-romantic-200 focus:border-romantic-500 focus:outline-none transition-colors duration-300 bg-white/80 backdrop-blur-sm resize-none;
+  }
+  
+  .floating-hearts {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .heart {
+    position: absolute;
+    color: rgba(236, 72, 153, 0.3);
+    animation: float-up 6s infinite linear;
+  }
+  
+  .heart:nth-child(odd) {
+    animation-delay: -2s;
+  }
+  
+  .heart:nth-child(even) {
+    animation-delay: -4s;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-romantic-gradient {
+    @apply bg-gradient-to-r from-romantic-500 to-lavender-500 bg-clip-text text-transparent;
+  }
+  
+  .text-sunset-gradient {
+    @apply bg-gradient-to-r from-blush-500 to-gold-500 bg-clip-text text-transparent;
+  }
+  
+  .glass-effect {
+    @apply bg-white/20 backdrop-blur-md border border-white/30;
+  }
+  
+  .romantic-shadow {
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.15);
+  }
+  
+  .romantic-glow {
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.3);
+  }
+  
+  /* Playfair Display font utility */
+  .font-playfair {
+    font-family: 'Playfair Display', serif;
+  }
+  
+  /* Great Vibes font utility */
+  .font-great-vibes {
+    font-family: 'Great Vibes', cursive;
+  }
+}
+
+/* Custom animations */
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translateY(100vh) scale(0);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(90vh) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(10vh) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0vh) scale(0);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sparkle {
+  animation: sparkle 2s infinite;
+}
+
+/* Loading spinner */
+.romantic-spinner {
+  border: 3px solid rgba(236, 72, 153, 0.3);
+  border-radius: 50%;
+  border-top: 3px solid #ec4899;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} 

@@ -1,0 +1,134 @@
+import React, { useState } from 'react';
+import { useApp } from '../hooks/useApp';
+import { LoveNote } from '../services/api.types';
+import { LoadingSpinner } from './LoadingSpinner';
+
+export const LoveNoteList: React.FC = () => {
+  const { notes, unreadCount, loading, error, createNote, markAsRead, addReaction, deleteNote } = useApp();
+  const [newNote, setNewNote] = useState('');
+  const [selectedEmotion, setSelectedEmotion] = useState('LOVE');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNote.trim()) return;
+
+    try {
+      await createNote(newNote.trim(), selectedEmotion);
+      setNewNote('');
+    } catch (err) {
+      console.error('Failed to create note:', err);
+    }
+  };
+
+  const handleReaction = async (noteId: string, emoji: string) => {
+    try {
+      await addReaction(noteId, emoji);
+    } catch (err) {
+      console.error('Failed to add reaction:', err);
+    }
+  };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 p-4">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="mb-8">
+        <h2 className="text-2xl font-playfair text-pink-600 mb-4">Love Notes</h2>
+        {unreadCount > 0 && (
+          <p className="text-sm text-pink-500 mb-4">
+            You have {unreadCount} unread note{unreadCount !== 1 ? 's' : ''}!
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <textarea
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              placeholder="Write a love note..."
+              className="w-full p-4 rounded-lg border border-pink-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent"
+              rows={3}
+            />
+          </div>
+          <div className="flex gap-4">
+            <select
+              value={selectedEmotion}
+              onChange={(e) => setSelectedEmotion(e.target.value)}
+              className="rounded-lg border border-pink-200 px-4 py-2"
+            >
+              <option value="LOVE">Love ❤️</option>
+              <option value="HAPPY">Happy 😊</option>
+              <option value="MISS">Miss You 🥺</option>
+              <option value="EXCITED">Excited 🎉</option>
+              <option value="THANKFUL">Thankful 🙏</option>
+            </select>
+            <button
+              type="submit"
+              className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+            >
+              Send Note
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="space-y-4">
+        {notes.map((note: LoveNote) => (
+          <div
+            key={note.id}
+            className={`p-6 rounded-lg shadow-lg ${
+              note.isRead ? 'bg-white' : 'bg-pink-50'
+            }`}
+          >
+            <p className="text-gray-800 mb-4">{note.content}</p>
+            <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center gap-2">
+                <span>{note.emotionTag}</span>
+                {note.reactionEmoji && (
+                  <span className="text-lg">{note.reactionEmoji}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-4">
+                {!note.isRead && (
+                  <button
+                    onClick={() => markAsRead(note.id)}
+                    className="text-pink-500 hover:text-pink-600"
+                  >
+                    Mark as Read
+                  </button>
+                )}
+                <div className="flex gap-2">
+                  {['❤️', '😊', '🥰', '😘'].map((emoji) => (
+                    <button
+                      key={emoji}
+                      onClick={() => handleReaction(note.id, emoji)}
+                      className="hover:transform hover:scale-125 transition-transform"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => deleteNote(note.id)}
+                  className="text-red-500 hover:text-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}; 
