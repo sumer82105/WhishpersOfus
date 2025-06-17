@@ -1,24 +1,24 @@
-# Use Eclipse Temurin JDK 17 as base image
-FROM eclipse-temurin:17-jdk-alpine AS builder
+# ====== Build Stage ======
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
-
-# Download dependencies (this layer will be cached if pom.xml doesn't change)
-RUN ./mvnw dependency:go-offline -B
+# Copy pom.xml and download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY src ./src
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
+# Package the application (skip tests)
+RUN mvn clean package -DskipTests
 
-# Runtime stage
+# ====== Runtime Stage ======
 FROM eclipse-temurin:17-jre-alpine
+
+# Add curl for health check
+RUN apk add --no-cache curl
 
 # Set working directory
 WORKDIR /app
@@ -27,10 +27,10 @@ WORKDIR /app
 RUN addgroup -g 1001 -S spring && \
     adduser -S spring -u 1001
 
-# Copy the JAR file from builder stage
+# Copy the built JAR from builder
 COPY --from=builder /app/target/*.jar app.jar
 
-# Change ownership of the app directory
+# Change ownership
 RUN chown -R spring:spring /app
 
 # Switch to non-root user
@@ -43,5 +43,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"] 
+# Start app
+ENTRYPOINT ["java", "-jar", "app.jar"]
