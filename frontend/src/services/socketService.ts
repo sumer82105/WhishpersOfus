@@ -35,6 +35,12 @@ export interface WebSocketMessage {
   type: 'CHAT' | 'JOIN' | 'LEAVE' | 'TYPING' | 'STOP_TYPING';
 }
 
+// Get WebSocket URL from environment variables
+const getWebSocketUrl = () => {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  return `${apiBaseUrl}/ws-chat`;
+};
+
 export const connectSocket = async (
   firebaseUid: string,
   token: string,
@@ -56,7 +62,9 @@ export const connectSocket = async (
 
     connectionCallbacks = callbacks;
     
-    const socket = new SockJSClass("http://localhost:8080/ws-chat");
+    const wsUrl = getWebSocketUrl();
+    console.log("🔌 Connecting to WebSocket at:", wsUrl);
+    const socket = new SockJSClass(wsUrl);
 
     stompClient = new ClientClass({
       webSocketFactory: () => socket,
