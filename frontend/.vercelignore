@@ -1,0 +1,16 @@
+node_modules
+.git
+*.log
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+src
+public
+*.md
+tsconfig.json
+tsconfig.node.json
+vite.config.js
+tailwind.config.js
+postcss.config.js 
