@@ -5,6 +5,9 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  root: process.cwd(),
+  base: '/',
+  publicDir: 'public',
   server: {
     port: 5173,
     host: true
@@ -14,6 +17,16 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: false,
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      },
+      output: {
+        manualChunks: undefined
+      }
+    }
   },
   resolve: {
     alias: {
