@@ -17,7 +17,7 @@ export const partnerService = {
    * Send a partner request to another user
    */
   sendPartnerRequest: async (receiverId: string): Promise<PartnerRequest> => {
-    const response = await axiosInstance.post<ApiResponse<PartnerRequest>>('/partner/request', {
+    const response = await axiosInstance.post<ApiResponse<PartnerRequest>>('/partners/request', {
       receiverId
     } as PartnerRequestDto);
     return response.data;
@@ -27,7 +27,7 @@ export const partnerService = {
    * Respond to a partner request (accept or reject)
    */
   respondToPartnerRequest: async (requestId: string, accepted: boolean): Promise<PartnerRequest> => {
-    const response = await axiosInstance.post<ApiResponse<PartnerRequest>>('/partner/respond', {
+    const response = await axiosInstance.post<ApiResponse<PartnerRequest>>('/partners/respond', {
       requestId,
       accepted
     } as PartnerRequestResponseDto);
@@ -38,7 +38,7 @@ export const partnerService = {
    * Get the current user's partner
    */
   getCurrentUserPartner: async (): Promise<User | null> => {
-    const response = await axiosInstance.get<ApiResponse<User | null>>('/partner/me');
+    const response = await axiosInstance.get<ApiResponse<User | null>>('/partners/me');
     return response.data;
   },
 
@@ -46,7 +46,7 @@ export const partnerService = {
    * Get all pending partner requests received by the current user
    */
   getPendingRequests: async (): Promise<PartnerRequest[]> => {
-    const response = await axiosInstance.get<ApiResponse<PartnerRequest[]>>('/partner/requests/pending');
+    const response = await axiosInstance.get<ApiResponse<PartnerRequest[]>>('/partners/requests/pending');
     return response.data;
   },
 
@@ -54,7 +54,7 @@ export const partnerService = {
    * Get all partner requests received by the current user
    */
   getReceivedRequests: async (): Promise<PartnerRequest[]> => {
-    const response = await axiosInstance.get<ApiResponse<PartnerRequest[]>>('/partner/requests/received');
+    const response = await axiosInstance.get<ApiResponse<PartnerRequest[]>>('/partners/requests/received');
     return response.data;
   },
 
@@ -62,7 +62,7 @@ export const partnerService = {
    * Get all partner requests sent by the current user
    */
   getSentRequests: async (): Promise<PartnerRequest[]> => {
-    const response = await axiosInstance.get<ApiResponse<PartnerRequest[]>>('/partner/requests/sent');
+    const response = await axiosInstance.get<ApiResponse<PartnerRequest[]>>('/partners/requests/sent');
     return response.data;
   },
 
