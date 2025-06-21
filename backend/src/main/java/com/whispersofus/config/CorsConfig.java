@@ -15,12 +15,15 @@ import java.util.List;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,https://*.vercel.app}")
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,https://*.vercel.app,https://whishpes-ofus.vercel.app}")
     private String allowedOrigins;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         String[] origins = allowedOrigins.split(",");
+        
+        // Log the origins for debugging
+        System.out.println("CORS Allowed Origins: " + allowedOrigins);
         
         registry.addMapping("/**")
                 .allowedOriginPatterns(origins)
@@ -39,6 +42,10 @@ public class CorsConfig implements WebMvcConfigurer {
         for (String origin : origins) {
             configuration.addAllowedOriginPattern(origin.trim());
         }
+        
+        // Also add the specific Vercel domain explicitly
+        configuration.addAllowedOriginPattern("https://whishpes-ofus.vercel.app");
+        configuration.addAllowedOriginPattern("https://*.vercel.app");
         
         configuration.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"

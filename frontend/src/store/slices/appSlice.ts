@@ -10,6 +10,9 @@ interface AppState {
   // Love Notes
   notes: LoveNote[];
   unreadCount: number;
+  notesTotalPages: number;
+  notesTotalElements: number;
+  currentNotePage: number;
   
   // Memories
   memories: Memory[];
@@ -35,6 +38,9 @@ interface AppState {
 const initialState: AppState = {
   notes: [],
   unreadCount: 0,
+  notesTotalPages: 0,
+  notesTotalElements: 0,
+  currentNotePage: 0,
   memories: [],
   wishes: [],
   surprises: [],
@@ -54,7 +60,13 @@ export const fetchLoveNotes = createAsyncThunk(
     try {
       const result = await loveNoteService.getAllLoveNotes(page);
       const unreadCount = await loveNoteService.getUnreadCount();
-      return { notes: result.content, unreadCount };
+      return { 
+        notes: result.content, 
+        unreadCount,
+        totalPages: result.totalPages,
+        totalElements: result.totalElements,
+        currentPage: page
+      };
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -404,6 +416,9 @@ const appSlice = createSlice({
     clearAllData: (state) => {
       state.notes = [];
       state.unreadCount = 0;
+      state.notesTotalPages = 0;
+      state.notesTotalElements = 0;
+      state.currentNotePage = 0;
       state.memories = [];
       state.wishes = [];
       state.photos = [];
@@ -417,6 +432,9 @@ const appSlice = createSlice({
       .addCase(fetchLoveNotes.fulfilled, (state, action) => {
         state.notes = action.payload.notes;
         state.unreadCount = action.payload.unreadCount;
+        state.notesTotalPages = action.payload.totalPages;
+        state.notesTotalElements = action.payload.totalElements;
+        state.currentNotePage = action.payload.currentPage;
         state.loading = false;
       })
       .addCase(createLoveNote.fulfilled, (state, action) => {

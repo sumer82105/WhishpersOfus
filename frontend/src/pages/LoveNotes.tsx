@@ -4,6 +4,8 @@ import {
   HeartIcon,
   PlusIcon,
   PaperAirplaneIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { CheckIcon } from "@heroicons/react/24/solid";
@@ -34,9 +36,15 @@ type EmotionTag = (typeof emotionTags)[number];
 const LoveNotes: React.FC = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { notes, unreadCount, loading, error } = useAppSelector(
-    (state) => state.app
-  );
+  const { 
+    notes, 
+    unreadCount, 
+    loading, 
+    error,
+    notesTotalPages,
+    notesTotalElements,
+    currentNotePage 
+  } = useAppSelector((state) => state.app);
 
   const [showForm, setShowForm] = React.useState(false);
   const [newNote, setNewNote] = React.useState({
@@ -47,9 +55,22 @@ const LoveNotes: React.FC = () => {
   // Fetch love notes when component mounts
   useEffect(() => {
     if (user) {
-      dispatch(fetchLoveNotes());
+      dispatch(fetchLoveNotes(0));
     }
   }, [dispatch, user]);
+
+  // Fetch love notes when page changes
+  useEffect(() => {
+    if (user && currentNotePage > 0) {
+      dispatch(fetchLoveNotes(currentNotePage));
+    }
+  }, [dispatch, user, currentNotePage]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 0 && newPage < notesTotalPages) {
+      dispatch(fetchLoveNotes(newPage));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +90,8 @@ const LoveNotes: React.FC = () => {
       setNewNote({ content: "", emotionTag: "LOVE" });
       setShowForm(false);
       toast.success("Love note sent successfully! 💌");
+      // Go to first page to show the new note (newest first)
+      dispatch(fetchLoveNotes(0));
     } catch (err) {
       toast.error("Failed to send love note 💔");
       console.error("Failed to create note:", err);
@@ -99,6 +122,8 @@ const LoveNotes: React.FC = () => {
     try {
       await dispatch(deleteLoveNote(noteId)).unwrap();
       toast.success("Note deleted 🗑️");
+      // Refresh the current page after deletion
+      dispatch(fetchLoveNotes(currentNotePage));
     } catch (err) {
       toast.error("Failed to delete note 😢");
       console.error("Failed to delete note:", err);
@@ -124,7 +149,14 @@ const LoveNotes: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-playfair text-pink-600">Love Notes</h1>
+        <div>
+          <h1 className="text-3xl font-playfair text-pink-600">Love Notes</h1>
+          {notesTotalElements > 0 && (
+            <p className="text-sm text-gray-600 mt-1">
+              Total: {notesTotalElements} notes
+            </p>
+          )}
+        </div>
         <button
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
@@ -230,8 +262,6 @@ const LoveNotes: React.FC = () => {
               note.read || note.isRead ? "bg-white" : "bg-pink-50"
             }`}
           >
-            {/* <p className="text-gray-800 mb-4">{note.content}</p>
-            <p className="text-gray-800 mb-4">{note.content}</p> */}
             <div className="flex justify-between items-center text-gray-800 mb-4">
               <p>{note.content}</p>
               <span
@@ -281,6 +311,61 @@ const LoveNotes: React.FC = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {notesTotalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-8">
+          <button
+            onClick={() => handlePageChange(currentNotePage - 1)}
+            disabled={currentNotePage === 0}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              currentNotePage === 0
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-pink-500 text-white hover:bg-pink-600"
+            }`}
+          >
+            <ChevronLeftIcon className="w-5 h-5" />
+            <span>Previous</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            {/* Page numbers */}
+            {Array.from({ length: notesTotalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => handlePageChange(i)}
+                className={`px-3 py-2 rounded-lg transition-colors ${
+                  currentNotePage === i
+                    ? "bg-pink-500 text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => handlePageChange(currentNotePage + 1)}
+            disabled={currentNotePage === notesTotalPages - 1}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              currentNotePage === notesTotalPages - 1
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-pink-500 text-white hover:bg-pink-600"
+            }`}
+          >
+            <span>Next</span>
+            <ChevronRightIcon className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      {/* Page info */}
+      {notesTotalPages > 1 && (
+        <div className="text-center text-sm text-gray-600 mt-4">
+          Page {currentNotePage + 1} of {notesTotalPages} • Showing {notes.length} of {notesTotalElements} notes
+        </div>
+      )}
     </div>
   );
 };
